@@ -7,6 +7,7 @@ import sys
 
 from .client import AirwallexClient
 from .agent import command
+from . import fixtures as _fx
 from . import receipts as _rc
 
 
@@ -14,7 +15,9 @@ def _run(html_out=None, offline=True):
     client = AirwallexClient()
     if offline:
         client.offline = True  # deterministic fixtures for CLI/demo
-    rc = command(client)
+        rc = command(client, now=_fx.scenario_now())
+    else:
+        rc = command(client)
     if html_out:
         with open(html_out, "w", encoding="utf-8") as f:
             f.write(_rc.to_html(rc))
