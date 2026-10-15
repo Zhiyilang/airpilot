@@ -141,6 +141,8 @@ class CLI(unittest.TestCase):
         finally:
             sys.stdout = old
         self.assertIn("AirPilot", json.dumps(rc, ensure_ascii=False))
+        # the bundled demo scenario must show BOTH incidents (delayed + duplicate)
+        self.assertGreaterEqual(rc["incidents_found"], 2)
 
     def test_cli_html_written(self):
         path = os.path.join(HERE, "_eval_test_receipt.html")
