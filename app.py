@@ -11,13 +11,14 @@ import gradio as gr
 
 from airpilot.client import AirwallexClient
 from airpilot.agent import command
+from airpilot import fixtures as _fx
 from airpilot import receipts as _rc
 
 
 def run():
     client = AirwallexClient()
     client.offline = True  # demo uses fixtures; flip to live with real creds
-    rc = command(client)
+    rc = command(client, now=_fx.scenario_now())
     html = _rc.to_html(rc)
     summary = ("source=%s · incidents=%d · acted=%d · blocked=%d"
                % (rc["source"], rc["incidents_found"],
