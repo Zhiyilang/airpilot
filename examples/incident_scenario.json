@@ -1,0 +1,46 @@
+{
+  "description": "AirPilot 内置演示场景（与 airpilot/fixtures.py 一致）。无 Airwallex 凭据时自动加载。",
+  "balances": {
+    "account_id": "acc_main",
+    "available_USD": "4200.00"
+  },
+  "transfers": [
+    {
+      "id": "t_supplier_delayed",
+      "status": "review",
+      "beneficiary": "Acme Supplies Ltd",
+      "amount": "1800.00",
+      "currency": "USD",
+      "reference": "INV-2026-0901",
+      "sla_minutes": 240,
+      "note": "卡在 review 超过 SLA -> 延迟事故，可安全重发"
+    },
+    {
+      "id": "t_dup_a",
+      "status": "completed",
+      "beneficiary": "Globex Logistics",
+      "amount": "650.00",
+      "currency": "USD",
+      "reference": "FREIGHT-771",
+      "note": "已支付"
+    },
+    {
+      "id": "t_dup_b",
+      "status": "review",
+      "beneficiary": "Globex Logistics",
+      "amount": "650.00",
+      "currency": "USD",
+      "reference": "FREIGHT-771",
+      "note": "与 t_dup_a 完全重复 -> 重复付款风险，必须 HOLD 而非重发"
+    },
+    {
+      "id": "t_ok",
+      "status": "completed",
+      "beneficiary": "Umbrella Utilities",
+      "amount": "320.00",
+      "currency": "USD",
+      "reference": "UTIL-OCT",
+      "note": "健康完成"
+    }
+  ]
+}
