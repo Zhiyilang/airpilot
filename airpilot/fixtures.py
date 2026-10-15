@@ -6,6 +6,8 @@ against the real API.
 """
 from __future__ import annotations
 
+import datetime
+import json
 import time
 
 _BALANCES = {
@@ -55,8 +57,8 @@ _TRANSFERS = [
         "currency": "USD",
         "amount": "650.00",
         "reference": "FREIGHT-771",
-        "created_at": "2026-11-10T11:00:00Z",
-        "updated_at": "2026-11-10T11:00:00Z",
+        "created_at": "2026-11-11T10:00:00Z",
+        "updated_at": "2026-11-11T10:00:00Z",
         "sla_minutes": 240,
     },
     {
@@ -92,6 +94,14 @@ def transfer_by_id(tid):
     return None
 
 
+def scenario_now():
+    """A 'now' shortly after the latest fixture transfer, so delayed SLA fires
+    on the genuinely-stuck transfer but not on the fresh duplicate."""
+    latest = max(datetime.datetime.strptime(t["updated_at"].rstrip("Z"),
+                                            "%Y-%m-%dT%H:%M:%S") for t in _TRANSFERS)
+    return latest + datetime.timedelta(hours=1)
+
+
 def _now():
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
@@ -116,6 +126,3 @@ def sim_create_refund(payload, reason=""):
         "request": payload,
         "created_at": _now(),
     }
-
-
-import json  # noqa: E402  (kept at bottom to avoid top churn)
