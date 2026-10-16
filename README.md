@@ -144,6 +144,7 @@ airpilot/
   cli.py        command / demo (--ledger)
 app.py          Gradio UI (reads PORT)
 eval.py         40 assertions
+examples/       bundled scenario + adversarial_scenario.md (the two attacks)
 ```
 
 ## License
