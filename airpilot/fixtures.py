@@ -23,6 +23,10 @@ _BALANCES = {
 # A realistic incident mix:
 #  - t_supplier_delayed : stuck in "review" past SLA (delayed supplier transfer)
 #  - t_dup_a / t_dup_b  : two transfers to SAME beneficiary, SAME amount (dup risk)
+#  - t_fraud_done / t_fraud_pending : same reference PO-5561 paid to a
+#                        DIFFERENT account (account-takeover signal)
+#  - t_smurf_a / t_smurf_b : same beneficiary+amount within 90 min under a
+#                        tweaked reference (reference-dodged duplicate)
 #  - t_ok               : healthy completed transfer
 _TRANSFERS = [
     {
@@ -71,6 +75,54 @@ _TRANSFERS = [
         "reference": "UTIL-OCT",
         "created_at": "2026-11-07T08:00:00Z",
         "updated_at": "2026-11-07T08:03:00Z",
+        "sla_minutes": 240,
+    },
+    {
+        "id": "t_fraud_done",
+        "status": "completed",
+        "beneficiary": "Initech Corp",
+        "beneficiary_account": "INITECH-1001",
+        "currency": "USD",
+        "amount": "980.00",
+        "reference": "PO-5561",
+        "created_at": "2026-11-09T14:00:00Z",
+        "updated_at": "2026-11-09T14:05:00Z",
+        "sla_minutes": 240,
+    },
+    {
+        "id": "t_fraud_pending",
+        "status": "review",
+        "beneficiary": "Initech Corp",
+        "beneficiary_account": "ATTACKER-9999",
+        "currency": "USD",
+        "amount": "980.00",
+        "reference": "PO-5561",
+        "created_at": "2026-11-11T10:30:00Z",
+        "updated_at": "2026-11-11T10:30:00Z",
+        "sla_minutes": 240,
+    },
+    {
+        "id": "t_smurf_a",
+        "status": "completed",
+        "beneficiary": "Stark Retail",
+        "beneficiary_account": "STARK-7001",
+        "currency": "USD",
+        "amount": "45.00",
+        "reference": "SUB-1001",
+        "created_at": "2026-11-11T10:30:00Z",
+        "updated_at": "2026-11-11T10:33:00Z",
+        "sla_minutes": 240,
+    },
+    {
+        "id": "t_smurf_b",
+        "status": "review",
+        "beneficiary": "Stark Retail",
+        "beneficiary_account": "STARK-7001",
+        "currency": "USD",
+        "amount": "45.00",
+        "reference": "SUB-1001-R2",
+        "created_at": "2026-11-11T11:15:00Z",
+        "updated_at": "2026-11-11T11:15:00Z",
         "sla_minutes": 240,
     },
 ]
