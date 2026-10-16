@@ -3,7 +3,8 @@
 Loop: PERCEIVE -> DETECT -> (PLAN -> VERIFY -> ACT) per incident -> RECEIPT.
 
 The brain (``plan``) only *proposes* a remedy. The verifier gate decides whether
-any Airwallex call is allowed. Nothing moves money unless the gate passes.
+any Airwallex call is allowed. Nothing moves money unless the gate passes — and
+an optional idempotency ledger makes "nothing moves twice" survive restarts.
 """
 from __future__ import annotations
 
@@ -29,8 +30,13 @@ def plan_for(incident):
     return {"remedy": "escalate", "transfer_id": incident.get("transfer_id"), "note": "human review"}
 
 
-def command(client, now=None, max_steps=50):
-    """Run one command pass. Returns a receipt dict."""
+def command(client, now=None, max_steps=50, ledger=None):
+    """Run one command pass. Returns a receipt dict.
+
+    ``ledger`` (optional IdempotencyLedger) makes the never-double-pay
+    guarantee survive crashes: actions already executed in a previous
+    process are blocked before any Airwallex call is made.
+    """
     trace = []
     balances = client.get_balances()
     transfers = client.list_transfers()
@@ -41,7 +47,7 @@ def command(client, now=None, max_steps=50):
     actions = []
     for inc in found:
         proposal = plan_for(inc)
-        ok, reason = _ver.verify(proposal, ctx)
+        ok, reason = _ver.verify(proposal, ctx, ledger=ledger)
         record = {
             "incident": inc,
             "proposal": proposal,
@@ -49,9 +55,14 @@ def command(client, now=None, max_steps=50):
             "verdict": reason,
         }
         if ok:
+            key = _ver.execution_key(proposal, ctx)
             res = _apply(client, proposal)
             record["result"] = res
             record["acted"] = bool(res.get("acted", True))
+            if record["acted"] and ledger is not None:
+                # only money that actually moved enters the ledger
+                ledger.record(key, {"incident": inc["type"],
+                                    "result_id": res.get("id")})
         else:
             record["acted"] = False
         actions.append(record)
@@ -64,6 +75,8 @@ def command(client, now=None, max_steps=50):
         actions=actions,
         steps=len(trace),
     )
+    if ledger is not None:
+        receipt["ledger_keys"] = len(ledger)
     return receipt
 
 
