@@ -40,13 +40,21 @@ def detect_delayed(transfers, now=None, sla_buffer_min=0):
 
 
 def detect_duplicate(transfers):
-    """Duplicate-payment risk: same beneficiary + amount + reference, one pending."""
+    """Duplicate-payment risk: same beneficiary + account + amount + reference,
+    one pending.
+
+    The account must match too: reusing a reference to pay a *different*
+    account is not a duplicate payment (the first money went elsewhere), it is
+    an account takeover — that pair belongs to detect_beneficiary_changed,
+    which escalates instead of holding.
+    """
     out = []
     by_key = {}
     for t in transfers:
-        key = (t["beneficiary"], t["amount"], t.get("reference"))
+        key = (t["beneficiary"], t.get("beneficiary_account"), t["amount"],
+               t.get("reference"))
         by_key.setdefault(key, []).append(t)
-    for (ben, amt, ref), group in by_key.items():
+    for (ben, _acct, amt, ref), group in by_key.items():
         if len(group) < 2:
             continue
         pending = [g for g in group if g.get("status") in ("review", "processing")]
@@ -91,7 +99,98 @@ def detect_insufficient(transfers, balances, proposed=None):
     return out
 
 
+def detect_beneficiary_changed(transfers):
+    """Account-takeover signal: same reference, DIFFERENT beneficiary account.
+
+    A supplier invoice reference (``PO-5561``) should always map to the same
+    bank account. If a pending transfer reuses a completed reference but pays a
+    different account, that is either a compromised vendor record or an
+    attacker who found the reference in an email thread. Either way the retry
+    must be blocked and a human must look. This attack slips straight through
+    a naive beneficiary+amount duplicate check because the *amount* is right.
+    """
+    out = []
+    by_ref = {}
+    for t in transfers:
+        by_ref.setdefault(t.get("reference"), []).append(t)
+    for ref, group in by_ref.items():
+        if not ref or len(group) < 2:
+            continue
+        accounts = {g.get("beneficiary_account") for g in group
+                    if g.get("beneficiary_account")}
+        if len(accounts) < 2:
+            continue
+        pending = [g for g in group if g.get("status") in ("review", "processing")]
+        done = [g for g in group if g.get("status") == "completed"]
+        if not (pending and done):
+            continue
+        pay = next(g for g in group if g.get("beneficiary_account") !=
+                   done[0].get("beneficiary_account"))
+        out.append({
+            "type": "beneficiary_account_changed",
+            "transfer_id": pay["id"],
+            "reference": ref,
+            "beneficiary": pay["beneficiary"],
+            "expected_account": done[0].get("beneficiary_account"),
+            "actual_account": pay.get("beneficiary_account"),
+            "amount": pay["amount"],
+            "currency": pay["currency"],
+            "matched_transfer_ids": [g["id"] for g in group],
+            "severity": "CRITICAL",
+            "summary": "Reference %s was paid to %s before, but transfer %s pays %s "
+                       "— possible account takeover; human review required."
+                       % (ref, done[0].get("beneficiary_account"), pay["id"],
+                          pay.get("beneficiary_account")),
+        })
+    return out
+
+
+def detect_rapid_repeat(transfers, window_min=90):
+    """Reference-dodged duplicate: same beneficiary + currency, DIFFERENT
+    references, created within a short window, at least one still pending.
+
+    The duplicate detector groups on (beneficiary, amount, reference). An
+    attacker who knows that tweaks the reference (``INV-2026-0901`` ->
+    ``INV-2026-0901-R2``) and pays the same supplier the same amount twice.
+    Time window is the tell: genuine supplier invoices do not arrive twice
+    within 90 minutes for the same amount.
+    """
+    out = []
+    by_bc = {}
+    for t in transfers:
+        by_bc.setdefault((t["beneficiary"], t["currency"]), []).append(t)
+    for (ben, cur), group in by_bc.items():
+        pending = [g for g in group if g.get("status") in ("review", "processing")]
+        if not pending or len(group) < 2:
+            continue
+        refs = {g.get("reference") for g in group}
+        if len(refs) < 2:
+            continue  # identical reference -> handled by detect_duplicate
+        times = [_parse(g["created_at"]) for g in group]
+        span_min = (max(times) - min(times)).total_seconds() / 60.0
+        if span_min > window_min:
+            continue
+        out.append({
+            "type": "rapid_repeat_payment",
+            "transfer_id": pending[0]["id"],
+            "beneficiary": ben,
+            "amount": pending[0]["amount"],
+            "currency": cur,
+            "window_minutes": round(span_min, 1),
+            "references": sorted(r for r in refs if r),
+            "matched_transfer_ids": [g["id"] for g in group],
+            "severity": "HIGH",
+            "summary": "%s received %s %s twice within %.0f min under different "
+                       "references %s — reference-dodged duplicate suspected."
+                       % (ben, pending[0]["amount"], cur, span_min,
+                          sorted(r for r in refs if r)),
+        })
+    return out
+
+
 def detect_all(transfers, balances, now=None):
     return (detect_delayed(transfers, now=now)
             + detect_duplicate(transfers)
-            + detect_insufficient(transfers, balances))
+            + detect_insufficient(transfers, balances)
+            + detect_beneficiary_changed(transfers)
+            + detect_rapid_repeat(transfers))
