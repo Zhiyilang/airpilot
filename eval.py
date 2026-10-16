@@ -1,4 +1,4 @@
-"""AirPilot self-verification: 39 assertions, no network, no credentials.
+"""AirPilot self-verification: 40 assertions, no network, no credentials.
 
 Run:  python eval.py
 Covers: incident detectors (incl. the two adversarial ones), the prove-then-act
@@ -412,4 +412,10 @@ class ClientSafety(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    # Custom runner: unittest's default output ("Ran N tests / OK") hides the
+    # count from grep-based audits and CI logs; print an explicit summary.
+    suite = unittest.TestLoader().loadTestsFromModule(sys.modules["__main__"])
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    failed = len(result.failures) + len(result.errors)
+    print("\nRESULT: %d passed, %d failed" % (result.testsRun - failed, failed))
+    sys.exit(0 if result.wasSuccessful() else 1)
