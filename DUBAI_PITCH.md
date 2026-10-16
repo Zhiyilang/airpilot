@@ -3,7 +3,7 @@
 **Category: Best Business AI Agent** · Prepared October 2026 · All-English entry
 
 > Prize: AED 550,000 per category winner + AED 1,000,000 "AI Agent of the Year".
-> Registration closes December 2026 · one registration allows multiple entries.
+> Registration closes January 2027 (official timeline + FAQ; press reported December — official page wins) · one registration allows multiple entries.
 
 ---
 

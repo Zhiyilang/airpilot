@@ -12,7 +12,7 @@
 | Prize pool | > AED 2.5M: **AED 550,000 per category winner**; +AED 1,000,000 for AI Agent of the Year |
 | Categories | Best Societal / Best Personal / Best Business / Best Youth (**under 21 at registration — not eligible, applicant is 21**) |
 | Eligibility | Worldwide; teams up to 6; **multiple entries allowed**; **fully commercialised solutions NOT eligible** |
-| Registration | Open; **closes December 2026** — dubaichamberdigital.com/en/create-ai-agents |
+| Registration | Open; **closes January 2027 (official timeline + FAQ; press reported December — official page wins)** — dubaichamberdigital.com/en/create-ai-agents |
 | Deliverables | **Prototype + English pitch deck + English demo video** |
 | Grand final | First week of **May 2027** — live demonstration of a **fully working agent** (not an MVP) |
 
@@ -30,7 +30,7 @@ AirPilot maps directly: payment-operations workflow automation (resolves inciden
 | Repo + licence + tests | ✅ MIT, 15/15 assertions, 3-version CI (green) | README.md |
 
 ## 4. Applicant action list
-- [ ] **B1.** Register at dubaichamberdigital.com/en/create-ai-agents (one registration covers both entries; before December 2026).
+- [ ] **B1.** Register at dubaichamberdigital.com/en/create-ai-agents (one registration covers both entries; before January 2027 (earlier registration = workshop/Academy access)).
 - [ ] **B2.** Deploy the AirPilot web app (Render) so the prototype has a live URL; confirm the demo scenario renders in the browser.
 - [ ] **B3.** Record the demo video per `DUBAI_DEMO_SCRIPT.md` (3 min, English, unlisted YouTube).
 - [ ] **B4.** Convert `DUBAI_PITCH.md` into a slide deck (12 slides, English).
