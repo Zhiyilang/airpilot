@@ -13,7 +13,7 @@
       "currency": "USD",
       "reference": "INV-2026-0901",
       "sla_minutes": 240,
-      "note": "卡在 review 超过 SLA -> 延迟事故，可安全重发"
+      "note": "卡在 review 超过 SLA -> 延迟事故，可安全重发（幂等键 airpilot-retry-t_supplier_delayed）"
     },
     {
       "id": "t_dup_a",
@@ -41,6 +41,46 @@
       "currency": "USD",
       "reference": "UTIL-OCT",
       "note": "健康完成"
+    },
+    {
+      "id": "t_fraud_done",
+      "status": "completed",
+      "beneficiary": "Initech Corp",
+      "beneficiary_account": "INITECH-1001",
+      "amount": "980.00",
+      "currency": "USD",
+      "reference": "PO-5561",
+      "note": "PO-5561 已于 11-09 付至 INITECH-1001"
+    },
+    {
+      "id": "t_fraud_pending",
+      "status": "review",
+      "beneficiary": "Initech Corp",
+      "beneficiary_account": "ATTACKER-9999",
+      "amount": "980.00",
+      "currency": "USD",
+      "reference": "PO-5561",
+      "note": "同引用号但收款账号变成 ATTACKER-9999 -> 账号掉包攻击，绝不可重发，升级人工"
+    },
+    {
+      "id": "t_smurf_a",
+      "status": "completed",
+      "beneficiary": "Stark Retail",
+      "beneficiary_account": "STARK-7001",
+      "amount": "45.00",
+      "currency": "USD",
+      "reference": "SUB-1001",
+      "note": "10:30 已付"
+    },
+    {
+      "id": "t_smurf_b",
+      "status": "review",
+      "beneficiary": "Stark Retail",
+      "beneficiary_account": "STARK-7001",
+      "amount": "45.00",
+      "currency": "USD",
+      "reference": "SUB-1001-R2",
+      "note": "11:15 同受益人同金额但引用号加了 -R2 -> 规避重复检测的变体，拦截重发"
     }
   ]
 }
