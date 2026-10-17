@@ -61,7 +61,27 @@
 3. 11-13 前提交；若有余力评估 Visa/Metal 专项集成
 4. 决赛（11-15 公布）后准备 11-19 Demo Day（可远程，官方明确 remote teams can access judging）
 
-## 七、用户动作清单（勾选框）
+## 七、申请表字段预制（打开表单直接对照粘，目标 ≤10 分钟）
+
+HackerEarth 申请表字段各站略有差异，下表按官方站常见字段预制；**标 🖊️ 的只有你能填**，其余复制即用。
+
+| 表单字段 | 粘这个 |
+|---|---|
+| Full name | 支一郎 |
+| Country / Region of residence | China（全球开放，中国可参加——官方 FAQ 已核实） |
+| Email / Phone | 🖊️ 你的常用邮箱+手机 |
+| Team size | 1（solo allowed，官方 1-4 人） |
+| GitHub profile | https://github.com/Zhiyilang |
+| LinkedIn / portfolio | 🖊️ 没有就填 GitHub 链接（不填通常不卡审） |
+| Track / Project direction | Payment Ops Incident Commander（Track 03）— an agent that resolves delayed supplier transfers without ever double-paying |
+| What will you build？（项目简述，粘这段） | An agent that watches outbound supplier transfers, classifies five incident types (delayed transfer, duplicate-payment risk, insufficient balance, plus two adversarial retry patterns), and routes each to the right action. The core guarantee: **every proposed action passes a deterministic verifier before execution, and an idempotent ledger makes double-paying structurally impossible** — each decision produces an evidence-carrying receipt. Built on the Airwallex sandbox API (auth → balances → transfers). |
+| Skills / tech | Python (stdlib-only), LLM agents, MCP, RPA automation, Airwallex sandbox API |
+| How did you hear about this | SF Tech Week / Airwallex |
+| Prior hackathon experience | 🖊️ 一句即可（可写"多个 AI agent hackathons; see github.com/Zhiyilang"） |
+
+**提交前最后一眼**：Track 名称与官方赛道描述字面对齐（"without ever double-paying" ↔ 官方 "without paying twice"）——这个词是本赛道原文，评委检索时直接命中。
+
+## 八、用户动作清单（勾选框）
 
 - [ ] 10-24 02:29 前：HackerEarth 注册（第三节五步）
 - [ ] 注册后立即按第四节建 sandbox 实体（**实体名用 "Sandbox Business"**）
